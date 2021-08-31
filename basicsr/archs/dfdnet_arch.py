@@ -140,7 +140,7 @@ class DFDNet(nn.Module):
 
             # swap features from dictionary
             for part_idx, part_name in enumerate(self.parts):
-                location = (part_locations[part_idx][batch] // (512 / f_size)).int()
+                location = torch.div(part_locations[part_idx][batch], (512 / f_size), rounding_mode='floor').int()
                 updated_feat = self.swap_feat(vgg_feat, updated_feat, dict_features[part_name], location, part_name,
                                               f_size)
 
