@@ -1,6 +1,7 @@
 import argparse
 import glob
 import numpy as np
+import shutil
 import os
 import torch
 import torchvision.transforms as transforms
@@ -187,5 +188,10 @@ if __name__ == '__main__':
 
         # clean all the intermediate results to process the next image
         face_helper.clean_all()
+        
+        shutil.rmtree(save_crop_root) 
+        os.mkdir(save_crop_root)
+        shutil.rmtree(save_restore_root) 
+        os.mkdir(save_restore_root)
 
     print(f'\nAll results are saved in {result_root}')
