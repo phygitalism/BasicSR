@@ -120,12 +120,17 @@ if __name__ == '__main__':
     face_helper = FaceRestorationHelper(args.upscale_factor, face_size=512)
 
     # scan all the jpg and png images
-    for img_path in sorted(glob.glob(os.path.join(args.test_path, '*.[jp][pn]g'))):
+    for img_path in sorted(glob.glob(os.path.join(args.test_path, '**', '*.[jp][pn]g'), recursive=True)):
         img_name = os.path.basename(img_path)
+        dir_name = os.path.relpath(img_path, args.test_path)
         print(f'Processing {img_name} image ...')
-        save_crop_path = os.path.join(save_crop_root, img_name)
+        save_crop_path = os.path.join(save_crop_root, dir_name)
+        os.makedirs(save_crop_path, exist_ok=True)
+        save_crop_path = os.path.join(save_crop_path, img_name)
         if args.save_inverse_affine:
-            save_inverse_affine_path = os.path.join(save_inverse_affine_root, img_name)
+            save_inverse_affine_path = os.path.join(save_inverse_affine_root, dir_name)
+            os.makedirs(save_inverse_affine_path, exist_ok=True)
+            save_inverse_affine_root = os.path.join(save_inverse_affine_root, img_name)
         else:
             save_inverse_affine_path = None
 
@@ -177,14 +182,14 @@ if __name__ == '__main__':
                     print(f'DFDNet inference fail: {e}')
                     restored_face = tensor2img(cropped_face, min_max=(-1, 1))
 
-            path = os.path.splitext(os.path.join(save_restore_root, img_name))[0]
+            path = os.path.splitext(os.path.join(save_restore_root, dir_name, img_name))[0]
             save_path = f'{path}_{idx:02d}.png'
             imwrite(restored_face, save_path)
             face_helper.add_restored_face(restored_face)
 
         print('\tGenerate the final result ...')
         # paste each restored face to the input image
-        face_helper.paste_faces_to_input_image(os.path.join(save_final_root, img_name))
+        face_helper.paste_faces_to_input_image(os.path.join(save_final_root, dir_name, img_name))
 
         # clean all the intermediate results to process the next image
         face_helper.clean_all()
